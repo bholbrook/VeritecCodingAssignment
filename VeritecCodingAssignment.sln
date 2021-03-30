@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31005.135
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeritecCodingAssignment", "VeritecCodingAssignment\VeritecCodingAssignment.csproj", "{E77C77B3-0286-4F36-AFAC-8EEE5EBF6943}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VeritecCodingAssignment.UnitTests", "VeritecCodingAssignment.UnitTests\VeritecCodingAssignment.UnitTests.csproj", "{C20692EE-AF9D-4E26-A21E-385F04817074}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E77C77B3-0286-4F36-AFAC-8EEE5EBF6943}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E77C77B3-0286-4F36-AFAC-8EEE5EBF6943}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E77C77B3-0286-4F36-AFAC-8EEE5EBF6943}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E77C77B3-0286-4F36-AFAC-8EEE5EBF6943}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C20692EE-AF9D-4E26-A21E-385F04817074}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C20692EE-AF9D-4E26-A21E-385F04817074}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C20692EE-AF9D-4E26-A21E-385F04817074}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C20692EE-AF9D-4E26-A21E-385F04817074}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {32B39852-DE2F-4697-8790-0DA8A4C1FDDC}
+	EndGlobalSection
+EndGlobal
