@@ -6,14 +6,15 @@ namespace VeritecCodingAssignment.Services
     public class TaxService : ITaxService
     {
         private const int NumberOfWeeksInYear = 52;
-        private const int NumberOfFortnightsInYear = NumberOfWeeksInYear / 2;
+        private const int NumberOfFortnightsInYear = 26;
+        private const int NumberOfMonthsInYear = 12;
 
         private const decimal SuperannuationPercentage = 9.5M;
 
         public decimal AnnualTaxableIncome(decimal annualGrossPackage)
         {
-            var unroundedTaxableIncome = annualGrossPackage / (1 + SuperannuationPercentage / 100);
-            return RoundDownToNearestDollar(unroundedTaxableIncome);
+            var unroundedTaxableIncome = annualGrossPackage / (1 + SuperannuationPercentage * 0.01M);
+            return RoundTo2Dp(unroundedTaxableIncome);
         }
 
         public decimal AnnualSuperannuationContribution(decimal annualGrossPackage)
@@ -21,21 +22,20 @@ namespace VeritecCodingAssignment.Services
             var taxableIncome = AnnualTaxableIncome(annualGrossPackage);
 
             var unroundedSuperannuation = annualGrossPackage - taxableIncome;
-            return Math.Round(unroundedSuperannuation, 2, MidpointRounding.ToPositiveInfinity);
+            return RoundTo2Dp(unroundedSuperannuation);
         }
 
         public decimal AnnualNetIncome(decimal annualGrossPackage, decimal annualSuperannuationContribution, decimal deductions)
         {
             return annualGrossPackage - annualSuperannuationContribution - deductions;
         }
-
-
-        private decimal Deductions(decimal annualTaxableIncome)
+        
+        public decimal Deductions(decimal annualTaxableIncome)
         {
             return MedicareLevy(annualTaxableIncome) + BudgetRepairLevy(annualTaxableIncome) + IncomeTax(annualTaxableIncome);
         }
         
-        public decimal PayPackageAmount(decimal annualNetIncome, Frequency frequency)
+        public decimal PayPacketAmount(decimal annualNetIncome, Frequency frequency)
         {
             switch (frequency)
             {
@@ -43,8 +43,8 @@ namespace VeritecCodingAssignment.Services
                     return annualNetIncome / NumberOfWeeksInYear;
                 case Frequency.Fortnightly:
                     return annualNetIncome / NumberOfFortnightsInYear;
-                case Frequency.Yearly:
-                    return annualNetIncome;
+                case Frequency.Monthly:
+                    return annualNetIncome / NumberOfMonthsInYear;
                 default:
                     throw new ArgumentException(nameof(frequency));
             }
@@ -115,7 +115,7 @@ namespace VeritecCodingAssignment.Services
             static decimal CalculateExcess(decimal taxableIncome, decimal taxPercentage, decimal excessThreshold)
             {
                 var excessIncome = taxableIncome - excessThreshold;
-                var excess = excessIncome * (taxPercentage / 100);
+                var excess = excessIncome * (taxPercentage * 0.01M);
                 return Math.Round(excess, 0, MidpointRounding.ToPositiveInfinity);
             }
         }
@@ -128,6 +128,11 @@ namespace VeritecCodingAssignment.Services
         private decimal RoundDownToNearestDollar(decimal value)
         {
             return Math.Round(value, 0, MidpointRounding.ToNegativeInfinity);
+        }
+
+        private decimal RoundTo2Dp(decimal value)
+        {
+            return Math.Round(value, 2, MidpointRounding.ToNegativeInfinity);
         }
     }
 }

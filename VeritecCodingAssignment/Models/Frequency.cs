@@ -4,6 +4,6 @@
     {
         Weekly,
         Fortnightly,
-        Yearly
+        Monthly
     }
 }

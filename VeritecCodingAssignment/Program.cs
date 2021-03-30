@@ -3,6 +3,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using VeritecCodingAssignment.Models;
+using VeritecCodingAssignment.Services;
 
 namespace VeritecCodingAssignment
 {
@@ -31,25 +33,62 @@ namespace VeritecCodingAssignment
             Console.Write("Enter your salary package amount: ");
 
             var grossPackageString = Console.ReadLine();
+            if (!decimal.TryParse(grossPackageString, out var grossPackage))
+            {
+                Console.WriteLine("An invalid amount has been entered.");
+                return;
+            }
 
             Console.Write("Enter your pay frequency (W for weekly, F for fortnightly, M for monthly): ");
 
             var payFrequencyString = Console.ReadLine();
+            Frequency frequency;
+            string frequencyLongName;
+            switch (payFrequencyString)
+            {
+                case "W":
+                    frequency = Frequency.Weekly;
+                    frequencyLongName = "week";
+                    break;
+                case "F":
+                    frequency = Frequency.Fortnightly;
+                    frequencyLongName = "fortnight";
+                    break;
+                case "M":
+                    frequency = Frequency.Monthly;
+                    frequencyLongName = "month";
+                    break;
+                default:
+                    Console.WriteLine("An invalid pay frequency has been entered.");
+                    return;
+            }
 
             Console.WriteLine("Calculating salary details...");
+            Console.WriteLine(Environment.NewLine);
 
-            Console.WriteLine("Gross package: ");
-            Console.WriteLine("Superannuation: ");
+            var taxService = new TaxService();
+
+            var annualTaxableIncome = taxService.AnnualTaxableIncome(grossPackage);
+
+            Console.WriteLine($"Gross package: {grossPackage:C}");
+
+            var superannuationContribution = taxService.AnnualSuperannuationContribution(grossPackage);
+            Console.WriteLine($"Superannuation: {superannuationContribution:C}");
             Console.WriteLine(Environment.NewLine);
-            Console.WriteLine("Taxable income: ");
+            Console.WriteLine($"Taxable income: {annualTaxableIncome:C}");
             Console.WriteLine(Environment.NewLine);
-            Console.WriteLine("Deductions:");
-            Console.WriteLine("Medicare Levy: ");
-            Console.WriteLine("Budget Repair Levy: ");
-            Console.WriteLine("Income Tax: ");
+
+            var deductions = taxService.Deductions(annualTaxableIncome);
+            Console.WriteLine($"Deductions: {deductions:C}");
+            Console.WriteLine($"Medicare Levy: {taxService.MedicareLevy(annualTaxableIncome):C}");
+            Console.WriteLine($"Budget Repair Levy: {taxService.BudgetRepairLevy(annualTaxableIncome):C}");
+            Console.WriteLine($"Income Tax: {taxService.IncomeTax(annualTaxableIncome):C}");
             Console.WriteLine(Environment.NewLine);
-            Console.WriteLine("Net income: ");
-            Console.WriteLine("Pay packet: ");
+
+            var annualNetIncome = taxService.AnnualNetIncome(grossPackage, superannuationContribution, deductions);
+            Console.WriteLine($"Net income: {annualNetIncome:C}");
+            
+            Console.WriteLine($"Pay packet: {taxService.PayPacketAmount(annualNetIncome, frequency):C} per {frequencyLongName}");
         }
 
         private static void Configure(HostBuilderContext context, IServiceCollection services)
@@ -61,6 +100,8 @@ namespace VeritecCodingAssignment
 
             services.AddLogging();
             services.AddOptions();
+
+            services.AddTransient<ITaxService, TaxService>();
         }
 
         private static IHostBuilder CreateHostBuilder(string[] args)

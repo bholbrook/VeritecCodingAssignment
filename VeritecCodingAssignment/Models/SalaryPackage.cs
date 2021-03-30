@@ -5,7 +5,8 @@ namespace VeritecCodingAssignment.Models
     public class SalaryPackage
     {
         private const int NumberOfWeeksInYear = 52;
-        private const int NumberOfFortnightsInYear = NumberOfWeeksInYear / 2;
+        private const int NumberOfFortnightsInYear = 26;
+        private const int NumberOfMonthsInYear = 12;
 
         private const decimal SuperannuationPercentage = 9.5M;
 
@@ -46,8 +47,8 @@ namespace VeritecCodingAssignment.Models
                     return AnnualNetIncome / NumberOfWeeksInYear;
                 case Frequency.Fortnightly:
                     return AnnualNetIncome / NumberOfFortnightsInYear;
-                case Frequency.Yearly:
-                    return AnnualNetIncome;
+                case Frequency.Monthly:
+                    return AnnualNetIncome / NumberOfMonthsInYear;
                 default:
                     throw new ArgumentException(nameof(frequency));
             }
