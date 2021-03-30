@@ -39,15 +39,15 @@ namespace VeritecCodingAssignment.Models
 
         private decimal Deductions => MedicareLevy + BudgetRepairLevy + IncomeTax;
 
-        public decimal PayPackageAmount(Frequency frequency)
+        public decimal PayPackageAmount(FrequencyType frequency)
         {
             switch (frequency)
             {
-                case Frequency.Weekly:
+                case FrequencyType.Weekly:
                     return AnnualNetIncome / NumberOfWeeksInYear;
-                case Frequency.Fortnightly:
+                case FrequencyType.Fortnightly:
                     return AnnualNetIncome / NumberOfFortnightsInYear;
-                case Frequency.Monthly:
+                case FrequencyType.Monthly:
                     return AnnualNetIncome / NumberOfMonthsInYear;
                 default:
                     throw new ArgumentException(nameof(frequency));

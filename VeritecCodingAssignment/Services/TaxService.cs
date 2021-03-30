@@ -35,15 +35,15 @@ namespace VeritecCodingAssignment.Services
             return MedicareLevy(annualTaxableIncome) + BudgetRepairLevy(annualTaxableIncome) + IncomeTax(annualTaxableIncome);
         }
         
-        public decimal PayPacketAmount(decimal annualNetIncome, Frequency frequency)
+        public decimal PayPacketAmount(decimal annualNetIncome, FrequencyType frequency)
         {
             switch (frequency)
             {
-                case Frequency.Weekly:
+                case FrequencyType.Weekly:
                     return annualNetIncome / NumberOfWeeksInYear;
-                case Frequency.Fortnightly:
+                case FrequencyType.Fortnightly:
                     return annualNetIncome / NumberOfFortnightsInYear;
-                case Frequency.Monthly:
+                case FrequencyType.Monthly:
                     return annualNetIncome / NumberOfMonthsInYear;
                 default:
                     throw new ArgumentException(nameof(frequency));

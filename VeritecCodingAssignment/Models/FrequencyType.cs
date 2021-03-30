@@ -1,6 +1,6 @@
 ﻿namespace VeritecCodingAssignment.Models
 {
-    public enum Frequency
+    public enum FrequencyType
     {
         Weekly,
         Fortnightly,
