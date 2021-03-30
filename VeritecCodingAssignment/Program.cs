@@ -3,13 +3,16 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using VeritecCodingAssignment.Models;
+using Microsoft.Extensions.Options;
+using VeritecCodingAssignment.Configuration;
 using VeritecCodingAssignment.Services;
 
 namespace VeritecCodingAssignment
 {
     public static class Program
     {
+        private const string PayFrequencyCommandsConfigurationKey = "PayFrequencyCommands";
+
         private static IConfiguration? _configuration;
 
         public static async Task Main(string[] args)
@@ -22,60 +25,17 @@ namespace VeritecCodingAssignment
 
             using var host = CreateHostBuilder(args).Build();
 
-            WriteUi();
+            // TODO: Replace this with real DI
+            WriteUi(new CommandReaderService(Options.Create(new PayFrequencyCommandConfiguration())));
 
             await host.StartAsync().ConfigureAwait(false);
         }
-
-        private static decimal ReadSalaryPackageFromConsole()
-        {
-            while (true)
-            {
-                Console.Write("Enter your salary package amount: ");
-
-                var grossPackageString = Console.ReadLine();
-                if (!decimal.TryParse(grossPackageString, out var salaryPackage) || salaryPackage <= 0)
-                {
-                    Console.WriteLine("An invalid amount has been entered.");
-                }
-                else
-                {
-                    return salaryPackage;
-                }
-            }
-        }
-
-        private static PayFrequency ReadPayFrequencyFromConsole()
-        {
-            while (true)
-            {
-                Console.Write("Enter your pay frequency (W for weekly, F for fortnightly, M for monthly): ");
-
-                var payFrequencyString = Console.ReadLine();
-
-                switch (payFrequencyString)
-                {
-                    case "W":
-                    case"w":
-                        return new PayFrequency(FrequencyType.Weekly, "week");
-                    case "F":
-                    case "f":
-                        return new PayFrequency(FrequencyType.Fortnightly, "fortnight");
-                    case "M":
-                    case "m":
-                        return new PayFrequency(FrequencyType.Monthly, "month");
-                    default:
-                        Console.WriteLine("An invalid pay frequency has been entered.");
-                        break;
-                }
-            }
-        }
-
+        
         // TODO: Make this better eventually
-        private static void WriteUi()
+        private static void WriteUi(ICommandReaderService commandReaderService)
         {
-            var grossPackage = ReadSalaryPackageFromConsole();
-            var payFrequency = ReadPayFrequencyFromConsole();
+            var grossPackage = commandReaderService.ReadSalaryPackageFromConsole();
+            var payFrequency = commandReaderService.ReadPayFrequencyFromConsole();
 
             Console.WriteLine("Calculating salary details...");
             Console.WriteLine(Environment.NewLine);
@@ -114,6 +74,9 @@ namespace VeritecCodingAssignment
 
             services.AddLogging();
             services.AddOptions();
+
+            ConfigureOptions<PayFrequencyCommandConfiguration>(services, _configuration,
+                PayFrequencyCommandsConfigurationKey);
 
             services.AddTransient<ITaxService, TaxService>();
         }

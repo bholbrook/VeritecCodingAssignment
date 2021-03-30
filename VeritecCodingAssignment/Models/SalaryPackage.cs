@@ -1,4 +1,5 @@
 ﻿using System;
+using VeritecCodingAssignment.Extensions;
 
 namespace VeritecCodingAssignment.Models
 {
@@ -12,53 +13,61 @@ namespace VeritecCodingAssignment.Models
 
         public SalaryPackage(decimal annualGrossPackage)
         {
-            AnnualGrossPackage = annualGrossPackage;
+            GrossPackage = annualGrossPackage;
         }
 
-        public decimal AnnualGrossPackage { get; }
+        public decimal GrossPackage { get; }
 
-        public decimal AnnualSuperannuationContribution
+        public decimal TaxableIncome
         {
             get
             {
-                var unroundedSuperannuation = AnnualGrossPackage * (SuperannuationPercentage / 100);
-                return Math.Round(unroundedSuperannuation, 2, MidpointRounding.ToPositiveInfinity);
+                var unroundedTaxableIncome = GrossPackage / (1 + SuperannuationPercentage * 0.01M);
+                return unroundedTaxableIncome.RoundToDollarAndCents();
             }
         }
 
-        public decimal AnnualTaxableIncome
+        public decimal SuperannuationContribution
         {
             get
             {
-                var unroundedTaxableIncome = AnnualGrossPackage - AnnualSuperannuationContribution;
-                return RoundDownToNearestDollar(unroundedTaxableIncome);
+                var unroundedSuperannuation = GrossPackage - TaxableIncome;
+                return unroundedSuperannuation.RoundToDollarAndCents();
             }
         }
 
-        public decimal AnnualNetIncome => AnnualGrossPackage - AnnualSuperannuationContribution - Deductions;
-
-        private decimal Deductions => MedicareLevy + BudgetRepairLevy + IncomeTax;
-
-        public decimal PayPackageAmount(FrequencyType frequency)
+        public decimal NetIncome
         {
-            switch (frequency)
+            get
             {
-                case FrequencyType.Weekly:
-                    return AnnualNetIncome / NumberOfWeeksInYear;
-                case FrequencyType.Fortnightly:
-                    return AnnualNetIncome / NumberOfFortnightsInYear;
-                case FrequencyType.Monthly:
-                    return AnnualNetIncome / NumberOfMonthsInYear;
-                default:
-                    throw new ArgumentException(nameof(frequency));
+                return GrossPackage - SuperannuationContribution - Deductions;
             }
         }
-        
+
+        public decimal Deductions
+        {
+            get
+            {
+                return MedicareLevy + BudgetRepairLevy + IncomeTax;
+            }
+        }
+
+        public decimal PayPacket(FrequencyType frequency)
+        {
+            return frequency switch
+            {
+                FrequencyType.Weekly => NetIncome / NumberOfWeeksInYear,
+                FrequencyType.Fortnightly => NetIncome / NumberOfFortnightsInYear,
+                FrequencyType.Monthly => NetIncome / NumberOfMonthsInYear,
+                _ => throw new ArgumentException(nameof(frequency)),
+            };
+        }
+
         public decimal MedicareLevy
         {
             get
             {
-                var roundedTaxableIncome = RoundDownToNearestDollar(AnnualTaxableIncome);
+                var roundedTaxableIncome = TaxableIncome.RoundDownToNearestDollar();
 
                 switch (roundedTaxableIncome)
                 {
@@ -68,12 +77,12 @@ namespace VeritecCodingAssignment.Models
                     {
                         var excessIncome = roundedTaxableIncome - 21335;
                         var unroundedMedicareLevy = excessIncome * 0.1M;
-                        return RoundUpToNearestDollar(unroundedMedicareLevy);
+                        return unroundedMedicareLevy.RoundUpToNearestDollar();
                     }
                     default:
                     {
                         var unroundedMedicareLevy = roundedTaxableIncome * 0.02M;
-                        return RoundUpToNearestDollar(unroundedMedicareLevy);
+                        return unroundedMedicareLevy.RoundUpToNearestDollar();
                     }
                 }
             }
@@ -83,7 +92,7 @@ namespace VeritecCodingAssignment.Models
         {
             get
             {
-                var roundedTaxableIncome = RoundDownToNearestDollar(AnnualTaxableIncome);
+                var roundedTaxableIncome = TaxableIncome.RoundDownToNearestDollar();
 
                 switch (roundedTaxableIncome)
                 {
@@ -101,7 +110,7 @@ namespace VeritecCodingAssignment.Models
         {
             get
             {
-                var roundedTaxableIncome = RoundDownToNearestDollar(AnnualTaxableIncome);
+                var roundedTaxableIncome = TaxableIncome.RoundDownToNearestDollar();
 
                 decimal excess;
                 switch (roundedTaxableIncome)
@@ -122,25 +131,15 @@ namespace VeritecCodingAssignment.Models
                         break;
                 }
 
-                return RoundUpToNearestDollar(excess);
+                return excess.RoundUpToNearestDollar();
 
                 static decimal CalculateExcess(decimal taxableIncome, decimal taxPercentage, decimal excessThreshold)
                 {
                     var excessIncome = taxableIncome - excessThreshold;
-                    var excess = excessIncome * (taxPercentage / 100);
+                    var excess = excessIncome * (taxPercentage * 0.01M);
                     return Math.Round(excess, 0, MidpointRounding.ToPositiveInfinity);
                 }
             }
-        }
-
-        private decimal RoundUpToNearestDollar(decimal value)
-        {
-            return Math.Round(value, 0, MidpointRounding.ToPositiveInfinity);
-        }
-
-        private decimal RoundDownToNearestDollar(decimal value)
-        {
-            return Math.Round(value, 0, MidpointRounding.ToNegativeInfinity);
         }
     }
 }

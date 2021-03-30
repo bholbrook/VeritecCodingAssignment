@@ -37,17 +37,13 @@ namespace VeritecCodingAssignment.Services
         
         public decimal PayPacketAmount(decimal annualNetIncome, FrequencyType frequency)
         {
-            switch (frequency)
+            return frequency switch
             {
-                case FrequencyType.Weekly:
-                    return annualNetIncome / NumberOfWeeksInYear;
-                case FrequencyType.Fortnightly:
-                    return annualNetIncome / NumberOfFortnightsInYear;
-                case FrequencyType.Monthly:
-                    return annualNetIncome / NumberOfMonthsInYear;
-                default:
-                    throw new ArgumentException(nameof(frequency));
-            }
+                FrequencyType.Weekly => annualNetIncome / NumberOfWeeksInYear,
+                FrequencyType.Fortnightly => annualNetIncome / NumberOfFortnightsInYear,
+                FrequencyType.Monthly => annualNetIncome / NumberOfMonthsInYear,
+                _ => throw new ArgumentException(nameof(frequency)),
+            };
         }
 
         public decimal MedicareLevy(decimal annualTaxableIncome)
